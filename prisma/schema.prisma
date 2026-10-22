@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum LoanStatus {
+  ACTIVE
+  RETURNED
+  OVERDUE
+  LOST
+}
+
+enum ReservationStatus {
+  WAITING
+  READY
+  CANCELLED
+  FULFILLED
+  EXPIRED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String
+  name          String
+  phone         String?
+  role          Role           @default(USER)
+  membershipId  String         @unique @default(cuid())
+  isActive      Boolean        @default(true)
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  loans         Loan[]
+  reservations  Reservation[]
+  reviews       Review[]
+  activityLogs  ActivityLog[]
+
+  @@index([email])
+  @@index([membershipId])
+  @@index([role])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  books       Book[]
+  createdAt   DateTime @default(now())
+}
+
+model Book {
+  id              String         @id @default(cuid())
+  title           String
+  author          String
+  isbn            String         @unique
+  description     String
+  coverColor      String
+  publishedYear   Int
+  pages           Int
+  language        String         @default("ru")
+  publisher       String?
+  totalCopies     Int            @default(1)
+  availableCopies Int            @default(1)
+  location        String?
+  categoryId      String
+  category        Category       @relation(fields: [categoryId], references: [id])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  loans           Loan[]
+  reservations    Reservation[]
+  reviews         Review[]
+
+  @@index([title])
+  @@index([author])
+  @@index([categoryId])
+  @@index([availableCopies])
+}
+
+model Loan {
+  id          String     @id @default(cuid())
+  userId      String
+  bookId      String
+  status      LoanStatus @default(ACTIVE)
+  borrowedAt  DateTime   @default(now())
+  dueDate     DateTime
+  returnedAt  DateTime?
+  renewedCount Int       @default(0)
+  fineAmount  Float      @default(0)
+  notes       String?
+  user        User       @relation(fields: [userId], references: [id])
+  book        Book       @relation(fields: [bookId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Reservation {
+  id        String            @id @default(cuid())
+  userId    String
+  bookId    String
+  status    ReservationStatus @default(WAITING)
+  position  Int               @default(1)
+  expiresAt DateTime?
+  notifiedAt DateTime?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  user      User              @relation(fields: [userId], references: [id])
+  book      Book              @relation(fields: [bookId], references: [id])
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([status])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
+  @@index([bookId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+model LibrarySettings {
+  id                 String @id @default("default")
+  loanDays           Int    @default(14)
+  maxLoansPerUser    Int    @default(5)
+  maxRenewals        Int    @default(2)
+  finePerDay         Float  @default(10)
+  reservationHoldDays Int   @default(3)
+  libraryName        String @default("LibraSpace")
+}

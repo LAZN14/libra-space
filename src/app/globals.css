@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f1e8;
+  --surface: #fffdf8;
+  --surface-2: #efe6d8;
+  --surface-3: #e4d7c5;
+  --ink: #1c1915;
+  --ink-soft: #3d372f;
+  --muted: #7a7164;
+  --line: #ddd2c0;
+  --accent: #0f6b4c;
+  --accent-hover: #0b553c;
+  --accent-soft: #d8efe6;
+  --highlight: #c45c26;
+  --glow: rgba(15, 107, 76, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(15, 107, 76, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(196, 92, 38, 0.1), transparent 50%),
+    linear-gradient(180deg, #f8f3eb 0%, #f3ebe0 40%, #efe6d8 100%);
+  color: var(--ink);
+  font-family: var(--font-body), Georgia, serif;
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.paper-grid {
+  background-image:
+    linear-gradient(rgba(28, 25, 21, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(28, 25, 21, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.grain {
+  position: relative;
+}
+
+.grain::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.stat-card {
+  background: linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+}
+
+.admin-shell {
+  background: #10150f;
+  color: #e8efe9;
+}
+
+.admin-shell {
+  --bg: #10150f;
+  --surface: #182018;
+  --surface-2: #212b22;
+  --surface-3: #2b382d;
+  --ink: #e8efe9;
+  --ink-soft: #c5d2c7;
+  --muted: #8a9a8d;
+  --line: #2f3d31;
+  --accent: #3dba84;
+  --accent-hover: #34a574;
+  --accent-soft: #1d3a2c;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-floaty {
+  animation: floaty 5s ease-in-out infinite;
+}

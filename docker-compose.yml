@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: libraspace-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: libraspace
+      POSTGRES_PASSWORD: libraspace
+      POSTGRES_DB: libraspace
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U libraspace -d libraspace"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: libraspace-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://libraspace:libraspace@db:5432/libraspace?schema=public
+      AUTH_SECRET: change-me-in-production-use-long-random-string
+      AUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
